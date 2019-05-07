@@ -6,19 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using DotIt.AutoPicker.Models;
 using DotIt.AutoPicker.Service;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DotIt.AutoPicker.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IHostingEnvironment _hostingEnvironment;
         public static List<OrderHedModel> SaleOrderList;
+        public HomeController(IHostingEnvironment hostingEnvironment)
+        {
+            _hostingEnvironment = hostingEnvironment;
+        }
         public IActionResult Index()
         {
             if (SaleOrderList == null)
             {
                 GetOrders();
             }
-            ViewBag.OrderList = SaleOrderList.Where(o =>o.TotalLines<50).Take(Constant.NumberOfOrdersToShow);
+            ViewBag.OrderList = SaleOrderList.Where(o => o.TotalLines < 50).Take(Constant.NumberOfOrdersToShow);
             return View();
         }
 
@@ -44,13 +50,13 @@ namespace DotIt.AutoPicker.Controllers
             return View(ObjModel);
         }
 
-        public JsonResult PickLineItem(int id,int orderline)
+        public JsonResult PickLineItem(int id, int orderline)
         {
             var Order = SaleOrderList.Where(o => o.OrderNum == id).Single();
             Order.OrderLine = orderline.ToString();
             Order.PickTime = DateTime.Now.ToString();
             SaleOrderList.ElementAt(SaleOrderList.IndexOf(SaleOrderList.Where(o => o.OrderNum == id).Single())).OrderPickStatus = "Processing";
-            
+
             WriteToFile(Order);
             return Json("Order in  Pick Process");
         }
@@ -144,9 +150,10 @@ namespace DotIt.AutoPicker.Controllers
 
         public void WriteToFile(OrderHedModel ObjModel)
         {
-            var logPath = Constant.LogFilePath;
+            string WebRootPath = _hostingEnvironment.WebRootPath;
+            var logPath =  WebRootPath+Constant.LogFilePath;
             var LogWriter = System.IO.File.AppendText(logPath);
-            LogWriter.WriteLine(ObjModel.OrderNum+","+ObjModel.OrderLine+","+ObjModel.Company + "," + ObjModel.CustNum + "," + ObjModel.OrderDateTime + "," + ObjModel.AllocPriorityCode + "," + ObjModel.ReservePriorityCode + "," + ObjModel.TotalLines + "," + ObjModel.PONum + "," +ObjModel.PickTime+","+ObjModel.UserId);
+            LogWriter.WriteLine(ObjModel.OrderNum + "," + ObjModel.OrderLine + "," + ObjModel.Company + "," + ObjModel.CustNum + "," + ObjModel.OrderDateTime + "," + ObjModel.AllocPriorityCode + "," + ObjModel.ReservePriorityCode + "," + ObjModel.TotalLines + "," + ObjModel.PONum + "," + ObjModel.PickTime + "," + ObjModel.UserId);
             LogWriter.Dispose();
         }
     }
