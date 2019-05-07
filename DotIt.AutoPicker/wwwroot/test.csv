@@ -1,0 +1,4 @@
+OrderNum,OrderLine,Company,CustNum,OrderDateTime,AllocPriorityCode,ReservePriorityCode,TotalLines,PONum,PickTime,UserId
+
+1011,1,DIRF,3661,7/29/2016 12:00:00 AM,,,15,W-1013,5/7/2019 10:12:26 AM,0
+1011,1,DIRF,3661,7/29/2016 12:00:00 AM,,,15,W-1013,5/7/2019 10:24:06 AM,0

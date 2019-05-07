@@ -35,6 +35,13 @@ namespace DotIt.AutoPicker.Models
         public const string EpicorApi_GetCustomerGroups = "/Erp.BO.CustGrupSvc/List";
 
         public const string EpicorApi_ShipVias = "/Erp.BO.ShipViaSvc/ShipVias";
+        public const int NumberOfOrdersToShow = 50;
+        public static string Encode(int id)
+        {
+            return Convert.ToBase64String((System.Text.Encoding.UTF8.GetBytes(id.ToString())));
+        }
+        public const string EpicorApi_OrderDetails = "/Erp.BO.SalesOrderSvc/OrderDtls";
+        public const string LogFilePath = @"S:\Projects\DotIt\New folder\DotIt\EpicorDaily\DotIt.AutoPicker\wwwroot\test.csv";
 
     }
 }
