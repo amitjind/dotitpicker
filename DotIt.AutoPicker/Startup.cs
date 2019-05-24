@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DotIt.AutoPicker.Persistance.Data.DotIt;
-using DotIt.AutoPicker.Persistance.Data.Epicor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -37,8 +35,8 @@ namespace DotIt.AutoPicker
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddDbContext<DotItExtensionContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DotItConnection")));
-            services.AddDbContext<ERP102TestContext>(option => option.UseSqlServer(Configuration.GetConnectionString("EpicorDotItConnection")));
+            //services.AddDbContext<DotItExtensionContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DotItConnection")));
+            //services.AddDbContext<ERP102TestContext>(option => option.UseSqlServer(Configuration.GetConnectionString("EpicorDotItConnection")));
 
         }
 
@@ -64,7 +62,7 @@ namespace DotIt.AutoPicker
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Picker}/{action=Index}/{id?}");
             });
         }
     }

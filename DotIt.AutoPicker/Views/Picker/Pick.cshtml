@@ -1,0 +1,160 @@
+﻿@model IEnumerable<DotIt.AutoPicker.Models.OrderHedModel>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Landing Page - Start Bootstrap Theme</title>
+
+    <!-- Bootstrap core CSS -->
+    @*<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">*@
+    <link href="~/bootstrap.min.css" rel="stylesheet" />
+    <!-- Custom fonts for this template -->
+    @*<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">*@
+    <link href="~/all.min.css" rel="stylesheet" />
+    @*<link href="vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet" type="text/css">*@
+    <link href="~/simple-line-icons.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet"
+          type="text/css">
+
+    <!-- Custom styles for this template -->
+    @*<link href="css/landing-page.min.css" rel="stylesheet">*@
+    <link href="~/landing-page.min.css" rel="stylesheet" />
+    @*<link href="css/landing-page.css" rel="stylesheet">*@
+    <link href="~/landing-page.css" rel="stylesheet" />
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="nav_list navbar navbar-light bg-light static-top">
+        <div class="container">
+            <ul>
+                <li><a href="~/Picker/Index">Home</a></li>
+                <li><a href="~/Picker/Orders">Orders</a></li>
+                <li><a class="active" href="~/Picker/Pick">Pick</a></li>
+                <li><a href="#">Profile</a></li>
+            </ul>
+
+        </div>
+    </nav>
+
+    <!-- Row -->
+    <div class="container">
+        <div>
+            <div class="tbl-scroll">
+                <table class="table table-borderless spc-mrg-tp-20 ">
+                    <thead class="bg-blue">
+                        <tr>
+                            <th scope="col">Bin Location</th>
+                            <th scope="col">Sku</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Qty</th>
+                            <th scope="col">Order</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var OrderLines in ViewBag.OrderLineItems)
+                        {
+                            <tr>
+                                <td>@OrderLines.BinNum</td>
+                                <td>@OrderLines.PartNum</td>
+
+                                <td>@OrderLines.LineDesc</td>
+                                <td>@OrderLines.OrderQty</td>
+                                <td>@OrderLines.OrderNum</td>
+                                <td><img src="img/bg-showcase-2.jpg" alt="resume" class="icon-spc"></td>
+                                <td><a id="PickButton+@OrderLines.OrderLine@OrderLines.OrderNum" href="javascript:void();" class="btn btn-info-grey" role="button" onclick="PickLineItem(@OrderLines.OrderNum,@OrderLines.OrderLine)">Pick</a></td>
+                                <td><a href="~/Picker/MoveToQuarantine/@Constant.Encode(int.Parse((OrderLines.OrderNum).ToString()))" class="btn btn-info-grey" role="button">Quarentine</a></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <a class="btn btn-info-grey">Complete Pick</a>
+    <!-- Bootstrap core JavaScript -->
+    @*<script src="vendor/jquery/jquery.min.js"></script>*@
+    <script src="~/jquery.min.js"></script>
+    @*<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>*@
+
+
+
+    <script>
+    var TotalLines = 0;
+var PickLineItem = function (ordernum,orderline) {
+    console.log(orderline);
+    var orderlinebutton = document.getElementById('PickButton+' + orderline+ordernum);
+    console.log(orderlinebutton);
+    if (orderlinebutton.innerText == "Picked")
+    {
+        //orderlinebutton.style.backgroundColor = "green";
+        orderlinebutton.innerText = "Pick";
+        TotalLines--;
+        console.log(TotalLines);
+        if (TotalLines == 0)
+        {
+            $.ajax({
+                type: "POST",
+                url: "/Home/UnPickLineItem/",
+                data: { id:ordernum,orderline:orderline},
+                success: function (response) {
+                    console.log('Unprocessing  Successful');
+                }
+            });
+        }
+    }
+    else {
+        //orderlinebutton.style.backgroundColor = "#87CEEB";
+        orderlinebutton.innerText = "Picked";
+
+        $.ajax({
+            type: "POST",
+            url: "/Picker/PickLineItem/",
+            data: {
+                id: ordernum,
+                orderline: orderline
+            },
+
+            success: function (response) {
+
+            },
+            failure: function (response) {
+                alert(response.responseText);
+            },
+            error: function (response) {
+                alert(response.responseText);
+            }
+        });
+        TotalLines++;
+    }
+    @*if (TotalLines ==@Model.TotalLines)
+    {
+        console.log('Total Lines are');
+        console.log(TotalLines); ''
+        var completepickbutton = document.getElementById("CompletePick");
+        completepickbutton.setAttribute('onclick','CompleteOrder(@Model.OrderNum);');
+        completepickbutton.textContent = "Complete Pick";
+        completepickbutton.style.backgroundColor = "#4BB050";
+    }*@
+}
+    </script>
+</body>
+
+</html>

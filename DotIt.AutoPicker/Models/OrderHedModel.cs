@@ -89,5 +89,13 @@ namespace DotIt.AutoPicker.Models
         //Field for storing UserId
         public int UserId { get; set; }
 
+        //Field for Bin location
+        public string BinNum { get; set; }
+        
+        //Field for SKU
+        public string PartNum { get; set; }
+
+        //Field for Description
+        public string LineDesc { get; set; }
     }
 }

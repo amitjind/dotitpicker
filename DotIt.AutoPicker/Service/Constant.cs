@@ -41,7 +41,10 @@ namespace DotIt.AutoPicker.Models
             return Convert.ToBase64String((System.Text.Encoding.UTF8.GetBytes(id.ToString())));
         }
         public const string EpicorApi_OrderDetails = "/Erp.BO.SalesOrderSvc/OrderDtls";
-        public const string LogFilePath = @"S:\Projects\DotIt\New folder\DotIt\EpicorDaily\DotIt.AutoPicker\wwwroot\test.csv";
+        public const string LogFilePath = @"\log.csv";
+        public const string PickFilePath = @"\PickedOrders.csv";
+        public const string QuarantineFilePath = @"\Quarantine.csv";
+        public const string PickersFilePath = @"\Pickers.csv";
 
     }
 }
