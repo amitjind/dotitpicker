@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using CsvHelper;
 using DotIt.AutoPicker.Models;
 using DotIt.AutoPicker.Service;
@@ -45,7 +44,6 @@ namespace DotIt.AutoPicker.Controllers
 
         public IActionResult Pick()
         {
-
             ViewBag.OrderLineItems=GetOrderDetails(SaleOrderList);
             return View();
         }
@@ -129,31 +127,28 @@ namespace DotIt.AutoPicker.Controllers
             {
                 var QuarantineWriter = System.IO.File.AppendText(_hostingEnvironment.WebRootPath + Constant.QuarantineFilePath);
                 QuarantineWriter.WriteLine("Order Number " + ObjModel.OrderNum + " was Quarantined by " + ObjModel.UserId + " at " + ObjModel.PickTime);
-                //QuarantineWriter.WriteLine("Problem at Order Line " + ObjModel.OrderLine + " from Order Number " + ObjModel.OrderNum);
                 QuarantineWriter.Dispose();
                 LogWriter.WriteLine("Order Number " + ObjModel.OrderNum + " was Quarantined by " + ObjModel.UserId + " at " + ObjModel.PickTime);
                 LogWriter.Dispose();
             }
         }
 
-        public IActionResult CompleteOrder(string id)
+        public IActionResult CompleteOrder(string ordernumber)
         {
-            int OrderNum = int.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(id)));
+            int OrderNum = int.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(ordernumber)));
             SaleOrderList.ElementAt(SaleOrderList.IndexOf(SaleOrderList.Where(o => o.OrderNum == OrderNum).Single())).OrderPickStatus = "Completed";
             ViewBag.OrderList = SaleOrderList;
             return View("Index");
         }
 
-        public IActionResult MoveToQuarantine(string id)
+        public IActionResult MoveToQuarantine(string ordernumber)
         {
-            int Id = int.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(id)));
-            var Order = SaleOrderList.Where(o => o.OrderNum == Id).Single();
-            //Order.OrderLine = orderline.ToString();
+            int OrderNumber = int.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(ordernumber)));
+            var Order = SaleOrderList.Where(o => o.OrderNum == OrderNumber).Single();
             Order.PickTime = DateTime.Now.ToString();
-            SaleOrderList.ElementAt(SaleOrderList.IndexOf(SaleOrderList.Where(o => o.OrderNum == Id).Single())).OrderPickStatus = "Quarantined";
+            SaleOrderList.ElementAt(SaleOrderList.IndexOf(SaleOrderList.Where(o => o.OrderNum == OrderNumber).Single())).OrderPickStatus = "Quarantined";
             WriteToFile(Order,"quarantine");
-            //ViewBag.OrderList = SaleOrderList.Take(Constant.NumberOfOrdersToShow);
-            ViewBag.OrderLineItems = GetOrderDetails(SaleOrderList).Where(x => x.OrderNum != Id);
+            ViewBag.OrderLineItems = GetOrderDetails(SaleOrderList).Where(x => x.OrderNum != OrderNumber);
             return View("Pick");
         }
     }

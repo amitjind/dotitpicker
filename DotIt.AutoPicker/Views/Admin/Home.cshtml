@@ -1,0 +1,31 @@
+﻿@model DotIt.AutoPicker.Models.AdminModel
+@{
+    Layout = null;
+}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Home</title>
+</head>
+<body>
+    <h2>Profile</h2>
+    <label>Name : </label>
+    <input type="text" name="Name" id="NameTextBox" /><br/><br />
+    <label>Email : </label>
+    <input type="text" name="Email" id="Email" /><br /><br />
+    <label>Role : </label>
+    <select class="form-control" id="exampleFormControlSelect1">
+        <option>Basic Picker</option>
+        <option>Experienced Picker</option>
+        <option>NCCO Picker</option>
+    </select>
+    <br /><br />
+    <label>Pick : </label>
+    <input type="checkbox" value="NCCO" />NCCO
+    <input type="checkbox" value="DotIt" />DotIt<br/><br />
+    <label>Max Lines : </label>
+    <input type="number" id="MaxLines" /><br /><br/>
+    <label>Lines per Hour : </label>
+    <input type="number" id="LinesPerHour" />
+</body>
+</html>
