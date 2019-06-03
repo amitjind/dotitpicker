@@ -8,6 +8,10 @@ using DotIt.AutoPicker.Service;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using DotIt.AutoPicker.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace DotIt.AutoPicker.Controllers
 {
@@ -16,17 +20,17 @@ namespace DotIt.AutoPicker.Controllers
         private readonly IHostingEnvironment _hostingEnvironment;
         public static List<OrderHedModel> SaleOrderList;
         public static List<PickersModel> PickersList;
+
         public PickerController(IHostingEnvironment hostingEnvironment)
         {
             _hostingEnvironment = hostingEnvironment;
         }
         public IActionResult Index()
         {
-            TextReader reader = new StreamReader(_hostingEnvironment.WebRootPath + Constant.PickersFilePath);
-            var CSVReader = new CsvReader(reader);
-            var records = CSVReader.GetRecords<PickersModel>();
-            ViewBag.Pickers = records.ToList();
-            PickersList = records.ToList();
+            DotItPickerContext dotItPickerContext = new DotItPickerContext();
+            var picker = dotItPickerContext.Warehouseemployee.FromSql("GetEmployees").ToList();
+            ViewBag.Pickerddl = picker.ToList();
+
             return View();
         }
 
@@ -44,7 +48,7 @@ namespace DotIt.AutoPicker.Controllers
 
         public IActionResult Pick()
         {
-            ViewBag.OrderLineItems=GetOrderDetails(SaleOrderList);
+            ViewBag.OrderLineItems = GetOrderDetails(SaleOrderList);
             return View();
         }
 
@@ -108,11 +112,11 @@ namespace DotIt.AutoPicker.Controllers
             Order.OrderLine = orderline.ToString();
             Order.PickTime = DateTime.Now.ToString();
             SaleOrderList.ElementAt(SaleOrderList.IndexOf(SaleOrderList.Where(o => o.OrderNum == id).Single())).OrderPickStatus = "Processing";
-            WriteToFile(Order,"pick");
+            WriteToFile(Order, "pick");
             return Json("Order in  Pick Process");
         }
 
-        public void WriteToFile(OrderHedModel ObjModel,string whattowrite)
+        public void WriteToFile(OrderHedModel ObjModel, string whattowrite)
         {
             var LogWriter = System.IO.File.AppendText(_hostingEnvironment.WebRootPath + Constant.LogFilePath);
             if (whattowrite == "pick")
@@ -132,7 +136,6 @@ namespace DotIt.AutoPicker.Controllers
                 LogWriter.Dispose();
             }
         }
-
         public IActionResult CompleteOrder(string ordernumber)
         {
             int OrderNum = int.Parse(System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(ordernumber)));
@@ -147,9 +150,32 @@ namespace DotIt.AutoPicker.Controllers
             var Order = SaleOrderList.Where(o => o.OrderNum == OrderNumber).Single();
             Order.PickTime = DateTime.Now.ToString();
             SaleOrderList.ElementAt(SaleOrderList.IndexOf(SaleOrderList.Where(o => o.OrderNum == OrderNumber).Single())).OrderPickStatus = "Quarantined";
-            WriteToFile(Order,"quarantine");
+            WriteToFile(Order, "quarantine");
             ViewBag.OrderLineItems = GetOrderDetails(SaleOrderList).Where(x => x.OrderNum != OrderNumber);
             return View("Pick");
+        }
+
+        public IActionResult Profile(int id)
+        {
+            DotItPickerContext dotItPickerContext = new DotItPickerContext();
+
+            var AllPickers = dotItPickerContext.Warehouseemployee.FromSql("GetEmployees").ToList();
+            var GetWarehouseemployeeBYId = AllPickers.Where(x => x.Empid == id).ToList();
+            Warehouseemployee model = AllPickers.Where(x => x.Empid == id).FirstOrDefault();
+
+            return View(model);
+        }
+        [HttpPost]
+        public ActionResult ProfileChanges(Warehouseemployee model)
+        {
+            DotItPickerContext dotItPickerContext = new DotItPickerContext();
+            if (ModelState.IsValid)
+            {
+                dotItPickerContext.Entry(model).State = EntityState.Modified;
+                dotItPickerContext.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            return View("Index");
         }
     }
 }
